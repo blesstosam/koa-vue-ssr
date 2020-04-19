@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ msg }}</h1>111
+    <h1>{{ msg }}</h1>333
     <router-link to="/foo">foo</router-link>
   </div>
 </template>

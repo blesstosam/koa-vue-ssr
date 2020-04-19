@@ -7,7 +7,7 @@ const VueSSRClientPlugin = require('vue-server-renderer/client-plugin')
 
 module.exports = merge(base, {
   entry: {
-    app: './entry-client.js'
+    app: './src/entry-client.js'
   },
   plugins: [
     // 重要信息：这将 webpack 运行时分离到一个引导 chunk 中，
