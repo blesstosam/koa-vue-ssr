@@ -12,5 +12,8 @@ export default {
       msg: 'App',
     };
   },
+  metaInfo: {
+    title: 'App'
+  },
 };
 </script>

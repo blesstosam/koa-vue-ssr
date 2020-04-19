@@ -11,6 +11,9 @@ const webpackDevMiddleware = require('./dev-plugin')
 // // 配合热加载实现模块热替换
 const webpackHotMiddleware = require('./hot-plugin')
 
+const expressMiddleware = require('webpack-dev-middleware');
+const expressHotMiddleware = require('webpack-hot-middleware');
+
 
 const PassThrough = require('stream').PassThrough;
 
@@ -61,7 +64,7 @@ module.exports = function setupDevServer(koaApp, templatePath, cb) {
 	// webpack-dev-middleware 最直观简单的理解就是一个运行于内存中的文件系统
 	// 用于处理静态文件
 	// 使用 webpack-dev-middleware 的时候webpack会自动开启watch
-	const devMiddleware = webpackDevMiddleware(clientCompiler, {
+	const devMiddleware = expressMiddleware(clientCompiler, {
 		publicPath: clinetCfg.output.publicPath,
 		nnoInfo: true
 	})
@@ -123,7 +126,7 @@ module.exports = function setupDevServer(koaApp, templatePath, cb) {
 			}, next)
 		}
 	}
-	koaApp.use(webpackHotMiddleware(clientCompiler))
+	koaApp.use(expressHotMiddleware(clientCompiler))
 
 	// express 写法
 	// 浏览器没有自动刷新 看是不是配置项的问题

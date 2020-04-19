@@ -6,6 +6,7 @@ const VueSSRServerPlugin = require('vue-server-renderer/server-plugin')
 
 module.exports = merge(base, {
   target: 'node',
+  // https://segmentfault.com/q/1010000011701354 关于要不要加 # 号
   devtool: '#source-map',
   entry: './src/entry-server.js',
 	output: {

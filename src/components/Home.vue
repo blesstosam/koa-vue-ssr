@@ -1,7 +1,8 @@
 <template>
   <div>
-    <h1>{{ msg }}</h1>333
-    <router-link to="/foo">foo</router-link>
+    <h1>{{ msg }}</h1>
+    333
+    <router-link to="/foo/1">foo</router-link>
   </div>
 </template>
 
@@ -12,6 +13,9 @@ export default {
     return {
       msg: 'Home',
     };
+  },
+  metaInfo: {
+    title: 'sam'
   },
 };
 </script>

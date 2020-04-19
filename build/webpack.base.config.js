@@ -43,10 +43,16 @@ module.exports = {
         }
       },
       {
-        test: /\.styl(us)?$/,
-        // 利用mini-css-extract-plugin提取css, 开发环境也不是必须
+        test: /\.css?$/,
+        // 在生产环境 利用mini-css-extract-plugin提取css, 开发环境用内联方式
         // use: [MiniCssExtractPlugin.loader, 'css-loader', 'stylus-loader']
         // 开发环境不需要提取css单独文件
+        use: isProd
+          ? [MiniCssExtractPlugin.loader, 'css-loader']
+          : ['vue-style-loader', 'css-loader']
+      },
+      {
+        test: /\.styl(us)?$/,
         use: isProd
           ? [MiniCssExtractPlugin.loader, 'css-loader', 'stylus-loader']
           : ['vue-style-loader', 'css-loader', 'stylus-loader']
