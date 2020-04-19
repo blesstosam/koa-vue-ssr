@@ -24,6 +24,27 @@ export default context => {
         return reject({ code: 404 })
       }
 
+      // todo 调用vuex里定义的serverInit 并将ctx传递过去
+      store.dispatch('serverInit', context)
+
+      // todo 这里也可以不经过store传递asyncdata里的数据
+      // asyncData 直接将将数据返回 在后台拿到数据 赋值给 context.state 效果是一样的
+      // async asyncData() {
+      //   const res = await fetch('/api/user')
+      //   return res
+      // }
+      // const res = Component.asyncData({
+      //   store,
+      //   route: router.currentRoute
+      // })
+      // 这里把数据混合到data上 就不走state了
+      // Component.data = {
+      //   ...Comment.data,
+      //   res
+      // }
+      // context.state = { res }
+
+
       // 对所有匹配的路由组件调用 `asyncData()`
       Promise.all(matchedComponents.map(Component => {
         if (Component.asyncData) {
