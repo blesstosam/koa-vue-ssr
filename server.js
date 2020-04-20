@@ -119,7 +119,7 @@ server.get('*', async (req, res) => {
 	if (cacheable) {
 		const hit = microCache.get(req.url)
 		if (hit) {
-			console.log(`${req.url} - 命中缓存...`)
+			console.log(`${req.url} -- 命中缓存...`)
 			return res.end(hit)
 		}
 	}
