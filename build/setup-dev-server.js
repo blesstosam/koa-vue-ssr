@@ -25,7 +25,7 @@ const readFile = (fs, file) => {
 }
 
 
-module.exports = function setupDevServer(koaApp, templatePath, cb) {
+module.exports = function setupDevServer(connectApp, templatePath, cb) {
 	let bundle
 	let template
 	let clientManifest
@@ -68,27 +68,9 @@ module.exports = function setupDevServer(koaApp, templatePath, cb) {
 		publicPath: clinetCfg.output.publicPath,
 		nnoInfo: true
 	})
-	// 官方给的示例是express的，这里改成koa 因为后台框架选用koa
-	// 开发服务器保持和生产一致
-	// 参考自 https://www.cnblogs.com/liuyt/p/7217024.html
-	// todo：  koa 的不起作用
-	const useDevMiddleware = () => {
-		console.log('use dev middleware inside......')
-		return async (ctx, next) => {
-			await devMiddleware(ctx.req, {
-				end: (content) => {
-					ctx.body = content
-				},
-				setHeader: (name, value) => {
-					ctx.set(name, value)
-				}
-			}, next)
-		}
-	}
-	koaApp.use(devMiddleware);
 
-	// exporess 写法
-	// koaApp.use(devMiddleware)
+	// dev middleware
+	connectApp.use(devMiddleware);
 
 	// https://cloud.tencent.com/developer/ask/151446
 	// complier.plugin('done') 被废弃 第一个字符串随便写
@@ -109,28 +91,7 @@ module.exports = function setupDevServer(koaApp, templatePath, cb) {
 	})
 
 	// hot middleware
-	// webpack-hot-middleware 插件用于热更新
-	// 同样改成koa的版本
-	const useHmrMiddlewre = () => {
-		const hmrPlugin = require('webpack-hot-middleware')(clientCompiler)
-		return async (ctx, next) => {
-			console.log('--------------in hmrPlugin')
-			let stream = new PassThrough()
-			ctx.body = stream
-			await hmrPlugin(ctx.req, {
-				write: stream.write.bind(stream),
-				writeHead: (status, headers) => {
-					ctx.status = status
-					ctx.set(headers)
-				}
-			}, next)
-		}
-	}
-	koaApp.use(expressHotMiddleware(clientCompiler))
-
-	// express 写法
-	// 浏览器没有自动刷新 看是不是配置项的问题
-	// koaApp.use(require('webpack-hot-middleware')(clientCompiler))
+	connectApp.use(expressHotMiddleware(clientCompiler))
 
 	// watch and update server renderer
 	const serverCompiler = webpack(serverCfg)

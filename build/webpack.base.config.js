@@ -6,6 +6,7 @@ const { VueLoaderPlugin } = require('vue-loader')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const isProd = process.env.NODE_ENV === 'production'
+const isClient = process.env.VUE_ENV === 'client'  // 判断是打client包还是server的包
 
 module.exports = {
   mode: process.env.NODE_ENV || 'development',
@@ -47,13 +48,14 @@ module.exports = {
         // 在生产环境 利用mini-css-extract-plugin提取css, 开发环境用内联方式
         // use: [MiniCssExtractPlugin.loader, 'css-loader', 'stylus-loader']
         // 开发环境不需要提取css单独文件
-        use: isProd
+        // 重要：因为 mini-css-extract-plugin 插件会使用document对象 所以server端的包不能使用该插件 所以用 isClient 来判断
+        use: isProd && isClient
           ? [MiniCssExtractPlugin.loader, 'css-loader']
           : ['vue-style-loader', 'css-loader']
       },
       {
         test: /\.styl(us)?$/,
-        use: isProd
+        use: isProd && isClient
           ? [MiniCssExtractPlugin.loader, 'css-loader', 'stylus-loader']
           : ['vue-style-loader', 'css-loader', 'stylus-loader']
       },

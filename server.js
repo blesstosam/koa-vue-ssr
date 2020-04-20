@@ -9,19 +9,16 @@ const Koa = require('koa')
 const Router = require('koa-router')
 const send = require('koa-send')
 
-const express = require('express')
-const server = express()
-
 // connect 作为开发环境的服务器
-// const connect = require('connect');
-// const http = require('http');
-// const app = connect();
+const connect = require('connect');
+const http = require('http');
+const app = connect();
 
 const isProd = process.env.NODE_ENV === 'production'
 
-// const server = new Koa();
-// const router = new Router()
-// server.use(router.routes()).use(router.allowedMethods());
+const server = new Koa();
+const router = new Router()
+server.use(router.routes()).use(router.allowedMethods());
 
 
 const microCache = new LRU({
@@ -70,19 +67,20 @@ if (isProd) {
 		await send(ctx, ctx.path, { root: __dirname + '/' });
 	});
 } else {
-	setupDevServer(server, templatePath, (bundle, opts) => {
+	// 将 connect 的 app 传递过去
+	setupDevServer(app, templatePath, (bundle, opts) => {
 		renderer = createRenderer(bundle, opts)
 	})
 }
 
-async function render(ctx, isKoa) {
-	const { req, res } = ctx;
+async function render(ctx) {
+	const { req } = ctx;
 	const cacheable = isCacheable(req)
 	if (cacheable) {
 		const hit = microCache.get(req.url)
 		if (hit) {
 			console.log(`${req.url} - 命中缓存...`)
-			return res.send(hit);
+			return ctx.body = hit;
 		}
 	}
 
@@ -99,6 +97,10 @@ async function render(ctx, isKoa) {
 			console.log('设置缓存: ', req.url)
 			microCache.set(req.url, html)
 		}
+
+		// 测试 vue-meta
+		// const { title } = context.meta.inject()
+		// console.log('title in server side', title.text())
 	} catch (err) {
 		console.log(err, 'err')
 		if (err.code === 404) {
@@ -110,58 +112,53 @@ async function render(ctx, isKoa) {
 	}
 }
 
-// router.get('*', render)
+router.get('*', render)
 
 
-//************************* express 写法 *********************************
-server.get('*', async (req, res) => {
-	const cacheable = isCacheable(req)
-	if (cacheable) {
-		const hit = microCache.get(req.url)
-		if (hit) {
-			console.log(`${req.url} -- 命中缓存...`)
-			return res.end(hit)
-		}
-	}
+//************************* connect 写法 *********************************
+// app.use('/foo/1', async (req, res) => {
+// 	const cacheable = isCacheable(req)
+// 	if (cacheable) {
+// 		const hit = microCache.get(req.url)
+// 		if (hit) {
+// 			console.log(`${req.url} -- 命中缓存...`)
+// 			return res.end(hit)
+// 		}
+// 	}
 
-	try {
-		// 该context就是entry-server.js里接收到的context	
-		const context = { url: req.url, title: 'blesstosam' }
-		res.setHeader('Content-Type', 'text/html')
-		const html = await renderer.renderToString(context)
-		console.log(html)
-		res.end(html);
+// 	try {
+// 		// 该context就是entry-server.js里接收到的context	
+// 		const context = { url: req.url, title: 'blesstosam' }
+// 		res.setHeader('Content-Type', 'text/html')
+// 		const html = await renderer.renderToString(context)
+// 		console.log(html)
+// 		res.end(html);
 
-		// 设置页面缓存
-		if (cacheable) {
-			console.log('设置缓存: ', req.url)
-			microCache.set(req.url, html)
-		}
+// 		// 设置页面缓存
+// 		if (cacheable) {
+// 			console.log('设置缓存: ', req.url)
+// 			microCache.set(req.url, html)
+// 		}
 
-		// 测试 vue-meta
-		// const { title } = context.meta.inject()
-		// console.log('title in server side', title.text())
+// 		// 测试 vue-meta
+// 		// const { title } = context.meta.inject()
+// 		// console.log('title in server side', title.text())
 
-	} catch (err) {
-		console.log(err, 'error')
-		if (err.code === 404) {
-			res.statusCode = 404;
-			return res.end('<h1>Page Not Found!</h1>')
-		}
-		res.statusCode = 500;
-		res.end('internal server error')
-	}
-})
-//************************** express 写法 ********************************
-server.listen(5000, () => { console.log('server listening in port 5000') })
-
-
-//************************** connect 写法 ********************************
-// app.use('/foo', function (req, res, next) {
-  // req is the Node.js http request object
-  // res is the Node.js http response object
-  // next is a function to call to invoke the next middleware
+// 	} catch (err) {
+// 		console.log(err, 'error')
+// 		if (err.code === 404) {
+// 			res.statusCode = 404;
+// 			return res.end('<h1>Page Not Found!</h1>')
+// 		}
+// 		res.statusCode = 500;
+// 		res.end('internal server error')
+// 	}
 // })
-//create node.js http server and listen on port
-// http.createServer(app).listen(5000, () => { console.log('server is listening on port 4000') });
+
+// server.listen(5000, () => { console.log('server listening in port 5000') })
+
 //************************** connect 写法 ********************************
+// 将 koa 的 app 挂载到 connect 的 app 上 
+// 这样路由和请求都走koa 但是有可以用connect 来使用webpack-dev-middleware中间件
+app.use(server.callback())
+http.createServer(app).listen(5000, () => { console.log('server is listening on port 5000') });

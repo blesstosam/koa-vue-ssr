@@ -34,7 +34,7 @@ export function createStore() {
       // 在服务器端调用该函数 => store.dispatch('serverInit', context)  并将ctx对象传过来
       // 然后将数据通过 commit 存到store里去 在客户端会调用store.replaceState 将数据合并到客户端 客户端就可以从store取了
       serverInit({ commit }, ctx) {
-        console.log(ctx, '+++++++++++in serverinit')
+        // console.log(ctx, '+++++++++++in serverinit')
       }
     },
   })

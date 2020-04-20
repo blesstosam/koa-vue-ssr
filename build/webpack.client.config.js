@@ -1,5 +1,5 @@
 const webpack = require('webpack')
-const path = require('path');
+// const path = require('path');
 const merge = require('webpack-merge')
 
 const base = require('./webpack.base.config')
@@ -40,8 +40,8 @@ module.exports = merge(base, {
       }
     },
     // minimizer: [
-      // https://www.jianshu.com/p/ceaf950a027b
-      // add UglifyJsPlugin
+    // https://www.jianshu.com/p/ceaf950a027b
+    // add UglifyJsPlugin
     // ]
   }
 
