@@ -49,7 +49,6 @@ export default context => {
       // 对所有匹配的路由组件调用 `asyncData()`
       // 理论上只能匹配到一个路由 所以数据为数组第一个
       Promise.all(matchedComponents.map(Component => {
-        console.log(Component.matched, 'Component')
         if (Component.asyncData && typeof Component.asyncData === 'function') {
           return Component.asyncData({
             store,

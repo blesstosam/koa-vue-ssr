@@ -6,11 +6,6 @@ const MFS = require('memory-fs')
 const clinetCfg = require('./webpack.client.config')
 const serverCfg = require('./webpack.server.config')
 
-// // webpack热加载需要
-const webpackDevMiddleware = require('./dev-plugin')
-// // 配合热加载实现模块热替换
-const webpackHotMiddleware = require('./hot-plugin')
-
 const expressMiddleware = require('webpack-dev-middleware');
 const expressHotMiddleware = require('webpack-hot-middleware');
 
