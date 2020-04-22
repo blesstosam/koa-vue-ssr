@@ -15,8 +15,6 @@ const expressMiddleware = require('webpack-dev-middleware');
 const expressHotMiddleware = require('webpack-hot-middleware');
 
 
-const PassThrough = require('stream').PassThrough;
-
 // 简单封装一下readfile
 const readFile = (fs, file) => {
 	try {

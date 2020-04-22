@@ -1,5 +1,6 @@
 // entry-server.js
 import { createApp } from './app'
+import isPlainObject from 'lodash/isPlainObject'
 
 // 服务器 entry 使用 default export 导出函数
 // 每一个渲染请求都会重复调用此函数
@@ -46,20 +47,32 @@ export default context => {
 
 
       // 对所有匹配的路由组件调用 `asyncData()`
+      // 理论上只能匹配到一个路由 所以数据为数组第一个
       Promise.all(matchedComponents.map(Component => {
-        if (Component.asyncData) {
+        console.log(Component.matched, 'Component')
+        if (Component.asyncData && typeof Component.asyncData === 'function') {
           return Component.asyncData({
             store,
             route: router.currentRoute
           })
         }
-      })).then(() => {
+      })).then((res) => {
+        console.log('0000000000res', res)
+        // 获取数据
+        if (res && res[0]) {
+          if (!isPlainObject(res[0])) {
+            console.error(`Please return a plain object in asynsData: found in ${router.currentRoute.name}`)
+          } else {
+            store.commit('setItem', {id: res[0].item.id, item: res[0].item})
+          }
+        }
         // 在所有预取钩子(preFetch hook) resolve 后，
         // 我们的 store 现在已经填充入渲染应用程序所需的状态。
         // 当我们将状态附加到上下文，
         // 并且 `template` 选项用于 renderer 时，
         // 状态将自动序列化为 `window.__INITIAL_STATE__`，并注入 HTML。
-        context.state = store.state
+        // 这里的数据格式可以随便定义
+        context.state = { state: { ...store.state }, data: [], serverRendered: true }
 
         resolve(app)
       }).catch(reject)

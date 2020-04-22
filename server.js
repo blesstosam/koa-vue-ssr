@@ -160,5 +160,8 @@ router.get('*', render)
 //************************** connect 写法 ********************************
 // 将 koa 的 app 挂载到 connect 的 app 上 
 // 这样路由和请求都走koa 但是有可以用connect 来使用webpack-dev-middleware中间件
+// https://www.stacknoob.com/s/Dt667M98zKbd73rFR2PSAn
 app.use(server.callback())
 http.createServer(app).listen(5000, () => { console.log('server is listening on port 5000') });
+
+// todo 将这些封装成一个类 传入 port 和 host 来启动服务器
